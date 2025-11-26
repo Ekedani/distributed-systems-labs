@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { ProcessNotificationDto } from './dto/process-notification.dto';
 import { ProcessResponseDto } from './dto/process-response.dto';
 
