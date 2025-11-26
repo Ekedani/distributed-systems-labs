@@ -14,14 +14,14 @@ interface WorkerService {
 export class AppService {
   private readonly logger = new Logger(AppService.name);
   private workerService: WorkerService;
-  private instanceId: string;
 
   constructor(@Inject('WORKER_PACKAGE') private client: ClientGrpc) {
-    this.instanceId = process.env.INSTANCE_ID || 'dispatcher-default';
   }
 
   onModuleInit() {
-    this.workerService = this.client.getService<WorkerService>('NotificationService');
+    this.workerService = this.client.getService<WorkerService>(
+      'NotificationService',
+    );
   }
 
   async dispatchNotification(
@@ -29,11 +29,6 @@ export class AppService {
   ): Promise<DispatchResponseDto> {
     const startTime = Date.now();
     const notificationId = uuidv4();
-
-    this.logger.log(
-      { id: notificationId, processingTime: 0 },
-      `[${this.instanceId}] Processing notification`,
-    );
 
     try {
       const workerResponse = await this.workerService.processNotification({
@@ -44,11 +39,11 @@ export class AppService {
       });
 
       const dispatcherDuration = Date.now() - startTime;
-      this.logger.log(
-        { id: notificationId, processingTime: dispatcherDuration },
-        `[${this.instanceId}] Notification dispatched to worker. ` +
-          `Total time: ${dispatcherDuration}ms, Worker time: ${workerResponse.processingTimeMs}ms`,
-      );
+      this.logger.log({
+        message: 'Notification processed',
+        id: notificationId,
+        processingTime: dispatcherDuration,
+      });
 
       return {
         success: true,
@@ -58,11 +53,11 @@ export class AppService {
       };
     } catch (error) {
       const dispatcherDuration = Date.now() - startTime;
-      this.logger.error(
-        { id: notificationId, processingTime: dispatcherDuration },
-        `[${this.instanceId}] Error dispatching to worker: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error({
+        message: 'Notification processing failed',
+        id: notificationId,
+        error: error.message,
+      });
 
       return {
         success: false,
