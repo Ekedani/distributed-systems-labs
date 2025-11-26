@@ -23,5 +23,5 @@ COPY --from=builder /usr/src/app/proto ./proto
 COPY .env* ./
 COPY package*.json ./
 
-EXPOSE 3000
+EXPOSE 50051
 CMD ["node", "dist/main.js"]
