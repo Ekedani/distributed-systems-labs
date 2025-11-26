@@ -22,27 +22,4 @@ export class NotificationResponseDto {
     required: false,
   })
   processedAt?: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Total processing time at dispatcher (milliseconds)',
-    example: 5,
-  })
-  processingTimeMs: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Total time from gateway to response (milliseconds)',
-    example: 15,
-    required: false,
-  })
-  gatewayTotalTimeMs?: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Processing time at dispatcher service (milliseconds)',
-    example: 5,
-    required: false,
-  })
-  dispatcherProcessingTimeMs?: number;
 }
