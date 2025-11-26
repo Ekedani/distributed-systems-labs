@@ -12,7 +12,7 @@ export class AppService {
     request: ProcessNotificationDto,
   ): Promise<ProcessResponseDto> {
     const startTime = Date.now();
-    const notificationId = uuidv4();
+    const notificationId = request.id;
 
     try {
       const processingDelay = Math.random() * this.MAX_PROCESSING_DELAY_MS;

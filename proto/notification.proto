@@ -7,10 +7,11 @@ service NotificationService {
 }
 
 message DispatchRequest {
-  string title = 1;
-  string message = 2;
-  string recipient = 3;
-  int64 sent_at = 4;
+  optional string id = 1;
+  string title = 2;
+  string message = 3;
+  string recipient = 4;
+  int64 sent_at = 5;
 }
 
 message DispatchResponse {

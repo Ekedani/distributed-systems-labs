@@ -31,7 +31,7 @@ export class AppService {
     const notificationId = uuidv4();
 
     try {
-      const workerResponse = await this.workerService.processNotification({
+      await this.workerService.processNotification({
         title: request.title,
         message: request.message,
         recipient: request.recipient,
