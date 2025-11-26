@@ -1,25 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
-
-interface DispatchNotificationRequest {
-  title: string;
-  message: string;
-  recipient: string;
-  sent_at: number;
-}
-
-interface DispatchNotificationResponse {
-  success: boolean;
-  notification_id: string;
-  processed_at: number;
-  processing_time_ms: number;
-}
+import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
+import { DispatchResponseDto } from './dto/dispatch-response.dto';
 
 interface WorkerService {
   processNotification(
-    request: DispatchNotificationRequest,
-  ): Promise<DispatchNotificationResponse>;
+    request: DispatchNotificationDto,
+  ): Promise<DispatchResponseDto>;
 }
 
 @Injectable()
@@ -34,29 +22,23 @@ export class AppService {
   }
 
   dispatchNotification(
-    request: DispatchNotificationRequest,
-  ): DispatchNotificationResponse {
+    request: DispatchNotificationDto,
+  ): DispatchResponseDto {
     const startTime = Date.now();
     const notificationId = uuidv4();
 
-    console.log(
-      `[Dispatcher] ${new Date().toISOString()} - Processing notification (ID: ${notificationId})`,
-    );
-
-    // Synchronous call to worker (in real async scenarios, this would be awaited)
-    // For now, simulating the worker processing
     this.workerService
       .processNotification({
         title: request.title,
         message: request.message,
         recipient: request.recipient,
-        sent_at: request.sent_at,
+        sentAt: request.sentAt,
       })
       .then((workerResponse) => {
         const dispatcherDuration = Date.now() - startTime;
         console.log(
           `[Dispatcher] ${new Date().toISOString()} - Notification dispatched to worker. ` +
-            `Total time: ${dispatcherDuration}ms, Worker time: ${workerResponse.processing_time_ms}ms`,
+            `Total time: ${dispatcherDuration}ms, Worker time: ${workerResponse.processingTimeMs}ms`,
         );
       })
       .catch((error) => {
@@ -70,9 +52,9 @@ export class AppService {
 
     return {
       success: true,
-      notification_id: notificationId,
-      processed_at: Date.now(),
-      processing_time_ms: processingTime,
+      notificationId: notificationId,
+      processedAt: Date.now(),
+      processingTimeMs: processingTime,
     };
   }
 }

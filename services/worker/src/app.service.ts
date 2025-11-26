@@ -1,25 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-
-interface DispatchNotificationRequest {
-  title: string;
-  message: string;
-  recipient: string;
-  sent_at: number;
-}
-
-interface DispatchNotificationResponse {
-  success: boolean;
-  notification_id: string;
-  processed_at: number;
-  processing_time_ms: number;
-}
+import { ProcessNotificationDto } from './dto/process-notification.dto';
+import { ProcessResponseDto } from './dto/process-response.dto';
 
 @Injectable()
 export class AppService {
+  constructor(private configService: ConfigService) {}
+
   processNotification(
-    request: DispatchNotificationRequest,
-  ): DispatchNotificationResponse {
+    request: ProcessNotificationDto,
+  ): ProcessResponseDto {
     const startTime = Date.now();
     const notificationId = uuidv4();
 
@@ -27,8 +18,8 @@ export class AppService {
       `[Worker] ${new Date().toISOString()} - Processing notification: ${request.title} for ${request.recipient}`,
     );
 
-    const processingDelay = Math.random() * 100
-    const endTime = startTime + processingDelay;
+    const maxDelay = this.configService.get('MAX_PROCESSING_DELAY_MS') || 100;
+    const processingDelay = Math.random() * maxDelay;
     const processingTime = Date.now() - startTime;
 
     console.log(
@@ -37,9 +28,9 @@ export class AppService {
 
     return {
       success: true,
-      notification_id: notificationId,
-      processed_at: Date.now(),
-      processing_time_ms: processingTime,
+      notificationId: notificationId,
+      processedAt: Date.now(),
+      processingTimeMs: processingTime,
     };
   }
 }

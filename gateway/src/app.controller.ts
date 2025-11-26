@@ -1,11 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service';
-
-interface CreateNotificationDto {
-  title: string;
-  message: string;
-  recipient: string;
-}
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { NotificationResponseDto } from './dto/notification-response.dto';
 
 @Controller()
 export class AppController {
@@ -14,7 +10,7 @@ export class AppController {
   @Post('notifications')
   async createNotification(
     @Body() dto: CreateNotificationDto,
-  ): Promise<any> {
+  ): Promise<NotificationResponseDto> {
     return this.appService.createNotification(
       dto.title,
       dto.message,

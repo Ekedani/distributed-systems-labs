@@ -1,25 +1,13 @@
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
-
-interface DispatchNotificationRequest {
-  title: string;
-  message: string;
-  recipient: string;
-  sent_at: number;
-}
-
-interface DispatchNotificationResponse {
-  success: boolean;
-  notification_id: string;
-  processed_at: number;
-  processing_time_ms: number;
-}
+import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
+import { NotificationResponseDto } from './dto/notification-response.dto';
 
 interface NotificationService {
   dispatchNotification(
-    request: DispatchNotificationRequest,
-  ): Promise<DispatchNotificationResponse>;
+    request: DispatchNotificationDto,
+  ): Promise<NotificationResponseDto>;
 }
 
 @Injectable()
@@ -34,7 +22,11 @@ export class AppService implements OnModuleInit {
     console.log('[Gateway] Dispatcher gRPC client initialized');
   }
 
-  async createNotification(title: string, message: string, recipient: string): Promise<any> {
+  async createNotification(
+    title: string,
+    message: string,
+    recipient: string,
+  ): Promise<NotificationResponseDto> {
     const startTime = Date.now();
     const sentAt = startTime;
     const notificationId = uuidv4();
@@ -48,21 +40,22 @@ export class AppService implements OnModuleInit {
         title,
         message,
         recipient,
-        sent_at: sentAt,
+        sentAt: sentAt,
       });
 
       const gatewayDuration = Date.now() - startTime;
 
       console.log(
         `[Gateway] ${new Date().toISOString()} - Notification processed. ` +
-          `Total time: ${gatewayDuration}ms, Dispatcher time: ${response.processing_time_ms}ms`,
+          `Total time: ${gatewayDuration}ms, Dispatcher time: ${response.processingTimeMs}ms`,
       );
 
       return {
         success: response.success,
-        notification_id: response.notification_id,
-        gateway_total_time_ms: gatewayDuration,
-        dispatcher_processing_time_ms: response.processing_time_ms,
+        notificationId: response.notificationId,
+        processingTimeMs: response.processingTimeMs,
+        gatewayTotalTimeMs: gatewayDuration,
+        dispatcherProcessingTimeMs: response.processingTimeMs,
       };
     } catch (error) {
       console.error(

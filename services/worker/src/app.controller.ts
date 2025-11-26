@@ -1,29 +1,17 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { AppService } from './app.service';
-
-interface DispatchNotificationRequest {
-  title: string;
-  message: string;
-  recipient: string;
-  sent_at: number;
-}
-
-interface DispatchNotificationResponse {
-  success: boolean;
-  notification_id: string;
-  processed_at: number;
-  processing_time_ms: number;
-}
+import { ProcessNotificationDto } from './dto/process-notification.dto';
+import { ProcessResponseDto } from './dto/process-response.dto';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   @GrpcMethod('NotificationService', 'ProcessNotification')
   processNotification(
-    request: DispatchNotificationRequest,
-  ): DispatchNotificationResponse {
+    request: ProcessNotificationDto,
+  ): ProcessResponseDto {
     return this.appService.processNotification(request);
   }
 }

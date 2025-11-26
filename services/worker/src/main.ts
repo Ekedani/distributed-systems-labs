@@ -11,12 +11,12 @@ async function bootstrap() {
       options: {
         package: 'notification',
         protoPath: join(__dirname, '../../proto/notification.proto'),
-        url: 'localhost:50052',
+        url: `${process.env.GRPC_HOST || '0.0.0.0'}:${process.env.GRPC_PORT || 50052}`,
       },
     },
   );
 
   await app.listen();
-  console.log('Worker microservice is listening on localhost:50052');
+  console.log(`Worker microservice is listening on ${process.env.GRPC_HOST || '0.0.0.0'}:${process.env.GRPC_PORT || 50052}`);
 }
 bootstrap();
