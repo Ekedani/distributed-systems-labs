@@ -3,11 +3,14 @@ import type { ClientGrpc } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
 import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
 import { DispatchResponseDto } from './dto/dispatch-response.dto';
+import { ProcessResponseDto } from './dto/process-response.dto';
+import { ProcessNotificationDto } from './dto/process-notification.dto';
+import { lastValueFrom, Observable } from 'rxjs';
 
 interface WorkerService {
   processNotification(
-    request: DispatchNotificationDto,
-  ): Promise<DispatchResponseDto>;
+    request: ProcessNotificationDto,
+  ): Observable<ProcessResponseDto>;
 }
 
 @Injectable()
@@ -20,7 +23,7 @@ export class AppService {
 
   onModuleInit() {
     this.workerService = this.client.getService<WorkerService>(
-      'NotificationService',
+      'NotificationProcessorService',
     );
   }
 
@@ -31,12 +34,13 @@ export class AppService {
     const notificationId = uuidv4();
 
     try {
-      await this.workerService.processNotification({
+      await lastValueFrom(this.workerService.processNotification({
+        id: notificationId,
         title: request.title,
         message: request.message,
         recipient: request.recipient,
         sentAt: request.sentAt,
-      });
+      }));
 
       const dispatcherDuration = Date.now() - startTime;
       this.logger.log({

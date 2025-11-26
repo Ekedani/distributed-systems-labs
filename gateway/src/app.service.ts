@@ -4,7 +4,7 @@ import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
 import { NotificationResponseDto } from './dto/notification-response.dto';
 import { lastValueFrom, Observable } from 'rxjs';
 
-interface NotificationService {
+interface NotificationDispatcherService {
   dispatchNotification(
     request: DispatchNotificationDto,
   ): Observable<NotificationResponseDto>;
@@ -12,13 +12,13 @@ interface NotificationService {
 
 @Injectable()
 export class AppService implements OnModuleInit {
-  private notificationService: NotificationService;
+  private notificationService: NotificationDispatcherService;
 
   constructor(@Inject('DISPATCHER_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
-    this.notificationService = this.client.getService<NotificationService>(
-      'NotificationService',
+    this.notificationService = this.client.getService<NotificationDispatcherService>(
+      'NotificationDispatcherService',
     );
   }
 
