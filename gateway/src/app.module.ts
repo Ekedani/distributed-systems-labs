@@ -8,16 +8,17 @@ import { join } from 'path';
   imports: [
     ClientsModule.register([
       {
-        name: "DISPATCHER_PACKAGE",
+        name: 'DISPATCHER_PACKAGE',
         transport: Transport.GRPC,
         options: {
-          package: 'dispatcher',
-          protoPath: join(__dirname, 'dispatcher/dispatcher.proto'),
+          package: 'notification',
+          protoPath: join(__dirname, '../../proto/notification.proto'),
+          url: 'localhost:50051',
         },
-      }
-    ])
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
