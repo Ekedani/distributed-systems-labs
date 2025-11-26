@@ -29,8 +29,6 @@ async function bootstrap() {
   });
 
   await app.listen(port);
-  console.log(`Gateway is running on port ${port}`);
-  console.log(`Swagger UI available at http://localhost:${port}/api/docs`);
 }
 
 bootstrap();
