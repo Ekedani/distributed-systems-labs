@@ -1,7 +1,7 @@
 ##############################################
 # 1. Build Stage
 ##############################################
-FROM node:24-alpine as builder
+FROM node:24-alpine AS builder
 
 WORKDIR /usr/src/app
 COPY package*.json ./
@@ -13,7 +13,7 @@ RUN npm run build
 ##############################################
 # 2. Runtime Stage
 ##############################################
-FROM node:24-alpine
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 

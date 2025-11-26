@@ -1,0 +1,45 @@
+services:
+  envoy:
+    image: envoyproxy/envoy:v1.36.2
+    container_name: envoy
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./envoy.yaml:/etc/envoy.yaml:ro
+    depends_on:
+      - dispatcher
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway
+    environment:
+      PORT: ${GATEWAY_PORT}
+      DISPATCHER_HOST: ${GATEWAY_DISPATCHER_HOST}
+      DISPATCHER_PORT: ${GATEWAY_DISPATCHER_PORT}
+      DISPATCHER_PACKAGE: ${GATEWAY_DISPATCHER_PACKAGE}
+    ports:
+      - "${GATEWAY_PORT}:3000"
+    depends_on:
+      - envoy
+
+  dispatcher:
+    build:
+      context: ./services/dispatcher
+    environment:
+      GRPC_HOST: ${DISPATCHER_GRPC_HOST}
+      GRPC_PORT: ${DISPATCHER_GRPC_PORT}
+      GRPC_PACKAGE: ${DISPATCHER_GRPC_PACKAGE}
+      WORKER_HOST: ${DISPATCHER_WORKER_HOST}
+      WORKER_PORT: ${DISPATCHER_WORKER_PORT}
+      WORKER_PACKAGE: ${DISPATCHER_WORKER_PACKAGE}
+    depends_on:
+      - worker
+
+  worker:
+    build:
+      context: ./services/worker
+    environment:
+      GRPC_HOST: ${WORKER_GRPC_HOST}
+      GRPC_PORT: ${WORKER_GRPC_PORT}
+      GRPC_PACKAGE: ${WORKER_GRPC_PACKAGE}
