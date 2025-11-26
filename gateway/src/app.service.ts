@@ -19,7 +19,6 @@ export class AppService implements OnModuleInit {
   onModuleInit() {
     this.dispatcherService =
       this.client.getService<NotificationService>('NotificationService');
-    console.log('[Gateway] Dispatcher gRPC client initialized');
   }
 
   async createNotification(
@@ -31,10 +30,6 @@ export class AppService implements OnModuleInit {
     const sentAt = startTime;
     const notificationId = uuidv4();
 
-    console.log(
-      `[Gateway] ${new Date().toISOString()} - Sending notification (ID: ${notificationId})`,
-    );
-
     try {
       const response = await this.dispatcherService.dispatchNotification({
         title,
@@ -44,11 +39,6 @@ export class AppService implements OnModuleInit {
       });
 
       const gatewayDuration = Date.now() - startTime;
-
-      console.log(
-        `[Gateway] ${new Date().toISOString()} - Notification processed. ` +
-          `Total time: ${gatewayDuration}ms, Dispatcher time: ${response.processingTimeMs}ms`,
-      );
 
       return {
         success: response.success,
