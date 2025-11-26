@@ -17,9 +17,11 @@ FROM node:24-alpine AS runner
 
 WORKDIR /app
 
+COPY package*.json ./
+RUN npm ci --omit=dev
+
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/services/worker/proto ./proto
+COPY --from=builder /usr/src/app/proto ./proto
 
 EXPOSE 50052
 CMD ["node", "dist/main.js"]
