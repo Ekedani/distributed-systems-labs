@@ -19,9 +19,9 @@ WORKDIR /app
 
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/proto ./proto
-COPY .env* ./
-COPY package*.json ./
+COPY --from=builder /usr/src/app/gateway/proto ./proto
+COPY gateway/.env* ./
+COPY gateway/package*.json ./
 
 EXPOSE 3000
 CMD ["node", "dist/main.js"]

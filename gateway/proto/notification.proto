@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package notification;
+
+service NotificationService {
+  rpc DispatchNotification(DispatchRequest) returns (DispatchResponse);
+}
+
+message DispatchRequest {
+  optional string id = 1;
+  string title = 2;
+  string message = 3;
+  string recipient = 4;
+  int64 sent_at = 5;
+}
+
+message DispatchResponse {
+  bool success = 1;
+  string notification_id = 2;
+  int64 processed_at = 3;
+  int64 processing_time_ms = 4;
+}

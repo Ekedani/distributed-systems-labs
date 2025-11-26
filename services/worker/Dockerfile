@@ -19,9 +19,9 @@ WORKDIR /app
 
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/proto ./proto
-COPY .env* ./
-COPY package*.json ./
+COPY --from=builder /usr/src/app/services/worker/proto ./proto
+COPY services/worker/.env* ./
+COPY services/worker/package*.json ./
 
 EXPOSE 50052
 CMD ["node", "dist/main.js"]

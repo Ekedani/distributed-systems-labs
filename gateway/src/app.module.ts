@@ -18,7 +18,7 @@ import { join } from 'path';
           transport: Transport.GRPC,
           options: {
             package: configService.get('DISPATCHER_PACKAGE'),
-            protoPath: join(__dirname, '../../proto/notification.proto'),
+            protoPath: join(__dirname, '../proto/notification.proto'),
             url: `${configService.get('DISPATCHER_HOST')}:${configService.get('DISPATCHER_PORT')}`,
           },
         }),
