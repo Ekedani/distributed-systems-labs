@@ -20,8 +20,6 @@ WORKDIR /app
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/services/dispatcher/proto ./proto
-COPY services/dispatcher/.env* ./
-COPY services/dispatcher/package*.json ./
 
 EXPOSE 50051
 CMD ["node", "dist/main.js"]
