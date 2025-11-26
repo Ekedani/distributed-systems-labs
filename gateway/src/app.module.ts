@@ -20,6 +20,9 @@ import { join } from 'path';
             package: configService.get('DISPATCHER_PACKAGE'),
             protoPath: join(__dirname, '../proto/notification.proto'),
             url: `${configService.get('DISPATCHER_HOST')}:${configService.get('DISPATCHER_PORT')}`,
+            loader: {
+              longs: Number
+            }
           },
         }),
         inject: [ConfigService],

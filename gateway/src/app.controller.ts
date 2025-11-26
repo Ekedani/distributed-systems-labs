@@ -9,6 +9,7 @@ import {
 import { AppService } from './app.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationResponseDto } from './dto/notification-response.dto';
+import { Observable } from 'rxjs';
 
 @ApiTags('notifications')
 @Controller()
@@ -46,13 +47,13 @@ export class AppController {
     status: 500,
     description: 'Internal server error or dispatcher service unavailable',
   })
-  async createNotification(
-    @Body() dto: CreateNotificationDto,
+  createNotification(
+    @Body() createNotificationDto: CreateNotificationDto,
   ): Promise<NotificationResponseDto> {
     return this.appService.createNotification(
-      dto.title,
-      dto.message,
-      dto.recipient,
+      createNotificationDto.title,
+      createNotificationDto.message,
+      createNotificationDto.recipient,
     );
   }
 }
