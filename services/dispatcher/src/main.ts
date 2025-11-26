@@ -3,11 +3,13 @@ import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { ConsoleLogger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
+      logger: new ConsoleLogger({ json: true }),
       transport: Transport.GRPC,
       options: {
         package: 'notification',
@@ -18,6 +20,5 @@ async function bootstrap() {
   );
 
   await app.listen();
-  console.log(`Dispatcher microservice is listening on ${process.env.GRPC_HOST || '0.0.0.0'}:${process.env.GRPC_PORT || 50051}`);
 }
 bootstrap();

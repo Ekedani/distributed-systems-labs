@@ -6,12 +6,12 @@ import { ProcessResponseDto } from './dto/process-response.dto';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @GrpcMethod('NotificationService', 'ProcessNotification')
-  processNotification(
+  async processNotification(
     request: ProcessNotificationDto,
-  ): ProcessResponseDto {
+  ): Promise<ProcessResponseDto> {
     return this.appService.processNotification(request);
   }
 }

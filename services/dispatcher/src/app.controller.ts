@@ -9,9 +9,9 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @GrpcMethod('NotificationService', 'DispatchNotification')
-  dispatchNotification(
+  async dispatchNotification(
     request: DispatchNotificationDto,
-  ): DispatchResponseDto {
+  ): Promise<DispatchResponseDto> {
     return this.appService.dispatchNotification(request);
   }
 }

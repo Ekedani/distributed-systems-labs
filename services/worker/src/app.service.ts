@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { ProcessNotificationDto } from './dto/process-notification.dto';
@@ -6,31 +6,57 @@ import { ProcessResponseDto } from './dto/process-response.dto';
 
 @Injectable()
 export class AppService {
+  private readonly logger = new Logger(AppService.name);
+
   constructor(private configService: ConfigService) {}
 
-  processNotification(
+  async processNotification(
     request: ProcessNotificationDto,
-  ): ProcessResponseDto {
+  ): Promise<ProcessResponseDto> {
     const startTime = Date.now();
     const notificationId = uuidv4();
 
-    console.log(
-      `[Worker] ${new Date().toISOString()} - Processing notification: ${request.title} for ${request.recipient}`,
-    );
+    try {
+      
 
-    const maxDelay = this.configService.get('MAX_PROCESSING_DELAY_MS') || 100;
-    const processingDelay = Math.random() * maxDelay;
-    const processingTime = Date.now() - startTime;
+      const maxDelay = parseInt(
+        this.configService.get('MAX_PROCESSING_DELAY_MS') || '100',
+        10,
+      );
+      const processingDelay = Math.random() * maxDelay;
+      await this.sleep(processingDelay);
 
-    console.log(
-      `[Worker] ${new Date().toISOString()} - Notification processed in ${processingTime}ms`,
-    );
+      const processingTime = Date.now() - startTime;
 
-    return {
-      success: true,
-      notificationId: notificationId,
-      processedAt: Date.now(),
-      processingTimeMs: processingTime,
-    };
+      this.logger.log(
+        { id: notificationId, processingTime },
+        `Notification processed`,
+      );
+
+      return {
+        success: true,
+        notificationId,
+        processedAt: Date.now(),
+        processingTimeMs: processingTime,
+      };
+    } catch (error) {
+      const processingTime = Date.now() - startTime;
+      this.logger.error(
+        { id: notificationId, processingTime },
+        `Error processing notification: ${error.message}`,
+        error.stack,
+      );
+
+      return {
+        success: false,
+        notificationId,
+        processedAt: Date.now(),
+        processingTimeMs: processingTime,
+      };
+    }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

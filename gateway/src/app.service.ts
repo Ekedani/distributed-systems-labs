@@ -1,4 +1,4 @@
-import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, OnModuleInit, Logger } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
 import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
@@ -12,12 +12,13 @@ interface NotificationService {
 
 @Injectable()
 export class AppService implements OnModuleInit {
-  private dispatcherService: NotificationService;
+  private readonly logger = new Logger(AppService.name);
+  private notificationService: NotificationService;
 
-  constructor(@Inject('DISPATCHER_PACKAGE') private client: ClientGrpc) {}
+  constructor(@Inject('DISPATCHER_PACKAGE') private client: ClientGrpc) { }
 
   onModuleInit() {
-    this.dispatcherService =
+    this.notificationService =
       this.client.getService<NotificationService>('NotificationService');
   }
 
@@ -31,7 +32,7 @@ export class AppService implements OnModuleInit {
     const notificationId = uuidv4();
 
     try {
-      const response = await this.dispatcherService.dispatchNotification({
+      const response = await this.notificationService.dispatchNotification({
         title,
         message,
         recipient,
@@ -40,17 +41,26 @@ export class AppService implements OnModuleInit {
 
       const gatewayDuration = Date.now() - startTime;
 
+      this.logger.log(
+        { id: notificationId, processingTime: gatewayDuration },
+        `Notification processed. Gateway time: ${gatewayDuration}ms, ` +
+        `Dispatcher time: ${response.processingTimeMs}ms`,
+      );
+
       return {
         success: response.success,
         notificationId: response.notificationId,
         processingTimeMs: response.processingTimeMs,
         gatewayTotalTimeMs: gatewayDuration,
         dispatcherProcessingTimeMs: response.processingTimeMs,
+        processedAt: response.processedAt,
       };
     } catch (error) {
-      console.error(
-        `[Gateway] ${new Date().toISOString()} - Error dispatching notification:`,
-        error.message,
+      const gatewayDuration = Date.now() - startTime;
+      this.logger.error(
+        { id: notificationId, processingTime: gatewayDuration },
+        `Error dispatching notification: ${error.message}`,
+        error.stack,
       );
       throw error;
     }
