@@ -11,5 +11,3 @@ coverage
 test
 .eslintrc*
 jest.config.js
-tsconfig.json
-tsconfig.build.json
