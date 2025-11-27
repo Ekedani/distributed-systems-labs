@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { ProcessNotificationDto } from './dto/process-notification.dto';
 import { ProcessResponseDto } from './dto/process-response.dto';
@@ -8,10 +8,17 @@ import { ProcessResponseDto } from './dto/process-response.dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @GrpcMethod('NotificationProcessorService', 'ProcessNotification')
-  async processNotification(
-    request: ProcessNotificationDto,
+  @MessagePattern('notifications.high')
+  async processHighPriority(
+    @Payload() message: ProcessNotificationDto,
   ): Promise<ProcessResponseDto> {
-    return this.appService.processNotification(request);
+    return this.appService.processNotification(message);
+  }
+
+  @MessagePattern('notifications.low')
+  async processLowPriority(
+    @Payload() message: ProcessNotificationDto,
+  ): Promise<ProcessResponseDto> {
+    return this.appService.processNotification(message);
   }
 }
