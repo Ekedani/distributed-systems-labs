@@ -10,26 +10,29 @@ static_resources:
             - name: envoy.filters.network.http_connection_manager
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-                stat_prefix: hcm
+                stat_prefix: grpc_ingress
                 codec_type: AUTO
-                normalize_path: true
+                http2_protocol_options: {}
                 route_config:
                   name: local_route
                   virtual_hosts:
-                    - name: grpc
+                    - name: grpc_services
                       domains: ["*"]
                       routes:
-                        - match: { prefix: "/" }
+                        - match:
+                            prefix: "/"
                           route:
                             cluster: dispatcher_cluster
                             timeout: 0s
                 http_filters:
                   - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
     - name: dispatcher_cluster
       type: STRICT_DNS
-      connect_timeout: 0.25s
+      connect_timeout: 1s
       lb_policy: ROUND_ROBIN
       http2_protocol_options: {}
       load_assignment:

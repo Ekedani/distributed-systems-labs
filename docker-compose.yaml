@@ -3,7 +3,7 @@ services:
     image: envoyproxy/envoy:v1.36.2
     container_name: envoy
     volumes:
-      - ./envoy.yaml:/etc/envoy.yaml:ro
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
     depends_on:
       - dispatcher
 
