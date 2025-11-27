@@ -5,7 +5,7 @@ import { ProcessResponseDto } from './dto/process-response.dto';
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
-  private readonly MAX_PROCESSING_DELAY_MS: number = 5000;
+  private readonly PROCESSING_DELAY_MS: number = 1000;
 
   async processNotification(
     request: ProcessNotificationDto,
@@ -14,7 +14,7 @@ export class AppService {
     const notificationId = request.id;
 
     try {
-      const processingDelay = Math.random() * this.MAX_PROCESSING_DELAY_MS;
+      const processingDelay = this.PROCESSING_DELAY_MS;
       await this.sleep(processingDelay);
       const processingTime = Date.now() - startTime;
 
