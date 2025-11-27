@@ -10,7 +10,7 @@ async function bootstrap() {
       transport: Transport.KAFKA,
       options: {
         client: {
-          clientId: process.env.KAFKA_CLIENT_ID || 'dispatcher-service',
+          clientId: process.env.KAFKA_CLIENT_ID || 'notifications-processor',
           brokers: process.env.KAFKA_BROKERS?.split(',') || ['localhost:9092'],
         },
         consumer: {
