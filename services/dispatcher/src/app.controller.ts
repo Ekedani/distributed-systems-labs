@@ -8,7 +8,7 @@ import { DispatchResponseDto } from './dto/dispatch-response.dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @GrpcMethod('NotificationService', 'DispatchNotification')
+  @GrpcMethod('NotificationDispatcherService', 'DispatchNotification')
   async dispatchNotification(
     request: DispatchNotificationDto,
   ): Promise<DispatchResponseDto> {
