@@ -8,15 +8,8 @@ import { ProcessResponseDto } from './dto/process-response.dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern('notifications.high')
+  @MessagePattern(['notifications.high', 'notifications.low'])
   async processHighPriority(
-    @Payload() message: ProcessNotificationDto,
-  ): Promise<ProcessResponseDto> {
-    return this.appService.processNotification(message);
-  }
-
-  @MessagePattern('notifications.low')
-  async processLowPriority(
     @Payload() message: ProcessNotificationDto,
   ): Promise<ProcessResponseDto> {
     return this.appService.processNotification(message);
