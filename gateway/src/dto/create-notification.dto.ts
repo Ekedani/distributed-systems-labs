@@ -34,4 +34,14 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   @MinLength(1)
   recipient: string;
+
+  @ApiProperty({
+    type: String,
+    example: 'high',
+    minLength: 1,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  priority: string;
 }
