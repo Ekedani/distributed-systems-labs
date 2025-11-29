@@ -37,11 +37,11 @@ export class CreateNotificationDto {
 
   @ApiProperty({
     type: String,
+    description: 'Notification priority level',
     example: 'high',
     minLength: 1,
   })
   @IsString()
   @IsNotEmpty()
-  @MinLength(1)
   priority: string;
 }
