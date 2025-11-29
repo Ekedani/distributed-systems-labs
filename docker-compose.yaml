@@ -31,8 +31,11 @@ services:
       WORKER_HOST: ${DISPATCHER_WORKER_HOST}
       WORKER_PORT: ${DISPATCHER_WORKER_PORT}
       WORKER_PACKAGE: ${DISPATCHER_WORKER_PACKAGE}
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_CLIENT_ID: notifications-dispatcher
     depends_on:
-      - worker
+      kafka-init:
+        condition: service_completed_successfully
 
   worker:
     build:
@@ -41,8 +44,12 @@ services:
       GRPC_HOST: ${WORKER_GRPC_HOST}
       GRPC_PORT: ${WORKER_GRPC_PORT}
       GRPC_PACKAGE: ${WORKER_GRPC_PACKAGE}
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_CLIENT_ID: notifications-processor
+      KAFKA_CONSUMER_GROUP_ID: notifications-consumer
     depends_on:
-      - kafka
+      kafka-init:
+        condition: service_completed_successfully
 
   kafka:
     image: confluentinc/cp-kafka:7.9.5
@@ -58,3 +65,25 @@ services:
       CLUSTER_ID: MkQkSjQ4OThiNDJkYjQ2MjE=
     ports:
       - "${KAFKA_PORT}:9092"
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.9.5
+    container_name: kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: |
+      bash -c "
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.high --partitions 1 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.normal --partitions 1 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.high.reply --partitions 1 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.normal.reply --partitions 1 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --list
+      "
+    networks:
+      - default
