@@ -15,8 +15,5 @@ message DispatchRequest {
 }
 
 message DispatchResponse {
-  bool success = 1;
-  string notification_id = 2;
-  int64 processed_at = 3;
-  int64 processing_time_ms = 4;
+  string notification_id = 1;
 }

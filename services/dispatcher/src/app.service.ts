@@ -4,18 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
 import { DispatchResponseDto } from './dto/dispatch-response.dto';
 import { ProcessNotificationDto } from './dto/process-notification.dto';
-import { lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class AppService implements OnModuleInit {
+export class AppService {
   private readonly logger = new Logger(AppService.name);
 
   constructor(@Inject('KAFKA_PRODUCER') private kafkaClient: ClientKafkaProxy) {}
 
-  onModuleInit() {
-    this.kafkaClient.subscribeToResponseOf('notifications.high');
-    this.kafkaClient.subscribeToResponseOf('notifications.normal');
-  }
 
   async dispatchNotification(
     request: DispatchNotificationDto,
@@ -32,39 +27,23 @@ export class AppService implements OnModuleInit {
         sentAt: request.sentAt,
       };
 
-      const targetTopic = request.priority === 'high' ? 'notifications.high' : 'notifications.normal';
-
-      await lastValueFrom(
-        this.kafkaClient.send(targetTopic, processNotification),
-      );
-
+      this.kafkaClient.emit('notifications.events', processNotification);
       const dispatcherDuration = Date.now() - startTime;
+
       this.logger.log({
         message: 'Notification dispatched',
         id: notificationId,
         processingTime: dispatcherDuration,
       });
 
-      return {
-        success: true,
-        notificationId,
-        processedAt: Date.now(),
-        processingTimeMs: dispatcherDuration,
-      };
+      return { notificationId };
     } catch (error) {
-      const dispatcherDuration = Date.now() - startTime;
       this.logger.error({
         message: 'Notification dispatch failed',
         id: notificationId,
         error: error.message,
       });
-
-      return {
-        success: false,
-        notificationId,
-        processedAt: Date.now(),
-        processingTimeMs: dispatcherDuration,
-      };
+      throw error;
     }
   }
 }
