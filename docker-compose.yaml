@@ -31,8 +31,13 @@ services:
       WORKER_HOST: ${DISPATCHER_WORKER_HOST}
       WORKER_PORT: ${DISPATCHER_WORKER_PORT}
       WORKER_PACKAGE: ${DISPATCHER_WORKER_PACKAGE}
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_CLIENT_ID: notifications-dispatcher
     depends_on:
-      - worker
+      kafka-init:
+        condition: service_completed_successfully
+    deploy:
+      replicas: 2
 
   worker:
     build:
@@ -41,3 +46,49 @@ services:
       GRPC_HOST: ${WORKER_GRPC_HOST}
       GRPC_PORT: ${WORKER_GRPC_PORT}
       GRPC_PACKAGE: ${WORKER_GRPC_PACKAGE}
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_CLIENT_ID: notifications-processor
+      KAFKA_CONSUMER_GROUP_ID: notifications-consumer
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    deploy:
+      replicas: 2
+
+  kafka:
+    image: confluentinc/cp-kafka:7.9.5
+    container_name: kafka
+    environment:
+      KAFKA_NODE_ID: ${KAFKA_NODE_ID}
+      KAFKA_PROCESS_ROLES: ${KAFKA_PROCESS_ROLES}
+      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
+      KAFKA_LISTENERS: ${KAFKA_LISTENERS}
+      KAFKA_ADVERTISED_LISTENERS: ${KAFKA_ADVERTISED_LISTENERS}
+      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
+      KAFKA_CONTROLLER_LISTENER_NAMES: ${KAFKA_CONTROLLER_LISTENER_NAMES}
+      KAFKA_DEFAULT_REPLICATION_FACTOR: ${KAFKA_DEFAULT_REPLICATION_FACTOR}
+      KAFKA_MIN_INSYNC_REPLICAS: ${KAFKA_MIN_INSYNC_REPLICAS}
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: ${KAFKA_AUTO_CREATE_TOPICS_ENABLE}
+      CLUSTER_ID: MkQkSjQ4OThiNDJkYjQ2MjE=
+    ports:
+      - "${KAFKA_PORT}:9092"
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.9.5
+    container_name: kafka-init
+    depends_on:
+      - kafka
+    entrypoint: |
+      bash -c "
+      echo 'Waiting for Kafka to be ready...'
+      sleep 15
+      echo 'Creating topics...'
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.high --partitions 2 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.normal --partitions 2 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.high.reply --partitions 2 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.normal.reply --partitions 2 --replication-factor 1
+      echo 'Topics created. Listing topics:'
+      kafka-topics --bootstrap-server kafka:9092 --list
+      echo 'Topic creation complete'
+      "

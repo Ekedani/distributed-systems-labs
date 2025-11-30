@@ -21,7 +21,6 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/proto ./proto
 
 EXPOSE 50052
 CMD ["node", "dist/main.js"]

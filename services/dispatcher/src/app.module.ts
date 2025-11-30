@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { join } from 'path';
 
 @Module({
   imports: [
@@ -11,18 +10,21 @@ import { join } from 'path';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    ClientsModule.registerAsync([
+    ClientsModule.register([
       {
-        name: 'WORKER_PACKAGE',
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: configService.get('WORKER_PACKAGE'),
-            protoPath: join(__dirname, '../proto/notification.proto'),
-            url: `${configService.get('WORKER_HOST')}:${configService.get('WORKER_PORT')}`,
+        name: 'KAFKA_PRODUCER',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: process.env.KAFKA_CLIENT_ID || 'notifications-dispatcher',
+            brokers: process.env.KAFKA_BROKERS?.split(',') || [
+              'localhost:9092',
+            ],
           },
-        }),
-        inject: [ConfigService],
+          producer: {
+            allowAutoTopicCreation: false,
+          },
+        },
       },
     ]),
   ],

@@ -1,30 +1,20 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import type { ClientGrpc } from '@nestjs/microservices';
+import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
+import type { ClientKafkaProxy } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
 import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
 import { DispatchResponseDto } from './dto/dispatch-response.dto';
-import { ProcessResponseDto } from './dto/process-response.dto';
 import { ProcessNotificationDto } from './dto/process-notification.dto';
-import { lastValueFrom, Observable } from 'rxjs';
-
-interface WorkerService {
-  processNotification(
-    request: ProcessNotificationDto,
-  ): Observable<ProcessResponseDto>;
-}
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class AppService {
+export class AppService implements OnModuleInit {
   private readonly logger = new Logger(AppService.name);
-  private workerService: WorkerService;
 
-  constructor(@Inject('WORKER_PACKAGE') private client: ClientGrpc) {
-  }
+  constructor(@Inject('KAFKA_PRODUCER') private kafkaClient: ClientKafkaProxy) {}
 
   onModuleInit() {
-    this.workerService = this.client.getService<WorkerService>(
-      'NotificationProcessorService',
-    );
+    this.kafkaClient.subscribeToResponseOf('notifications.high');
+    this.kafkaClient.subscribeToResponseOf('notifications.normal');
   }
 
   async dispatchNotification(
@@ -34,17 +24,23 @@ export class AppService {
     const notificationId = uuidv4();
 
     try {
-      await lastValueFrom(this.workerService.processNotification({
+      const processNotification: ProcessNotificationDto = {
         id: notificationId,
         title: request.title,
         message: request.message,
         recipient: request.recipient,
         sentAt: request.sentAt,
-      }));
+      };
+
+      const targetTopic = request.priority === 'high' ? 'notifications.high' : 'notifications.normal';
+
+      await lastValueFrom(
+        this.kafkaClient.send(targetTopic, processNotification),
+      );
 
       const dispatcherDuration = Date.now() - startTime;
       this.logger.log({
-        message: 'Notification processed',
+        message: 'Notification dispatched',
         id: notificationId,
         processingTime: dispatcherDuration,
       });
@@ -58,7 +54,7 @@ export class AppService {
     } catch (error) {
       const dispatcherDuration = Date.now() - startTime;
       this.logger.error({
-        message: 'Notification processing failed',
+        message: 'Notification dispatch failed',
         id: notificationId,
         error: error.message,
       });

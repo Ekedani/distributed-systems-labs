@@ -11,28 +11,10 @@ message DispatchRequest {
   string message = 2;
   string recipient = 3;
   int64 sent_at = 4;
+  string priority = 5;
 }
 
 message DispatchResponse {
-  bool success = 1;
-  string notification_id = 2;
-  int64 processed_at = 3;
-  int64 processing_time_ms = 4;
-}
-
-service NotificationProcessorService {
-  rpc ProcessNotification(ProcessRequest) returns (ProcessResponse);
-}
-
-message ProcessRequest {
-  string id = 1;
-  string title = 2;
-  string message = 3;
-  string recipient = 4;
-  int64 sent_at = 5;
-}
-
-message ProcessResponse {
   bool success = 1;
   string notification_id = 2;
   int64 processed_at = 3;

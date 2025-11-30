@@ -3,4 +3,5 @@ export class DispatchNotificationDto {
   message: string;
   recipient: string;
   sentAt: number;
+  priority: string;
 }
