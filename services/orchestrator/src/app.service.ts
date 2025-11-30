@@ -1,6 +1,7 @@
-import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ClientKafkaProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { SendNotificationCommandDto, SendNotificationPayload } from './dto/notification.command';
 
 @Injectable()
 export class AppService {
@@ -9,33 +10,33 @@ export class AppService {
   constructor(@Inject('KAFKA_PRODUCER') private kafkaClient: ClientKafkaProxy) {}
 
   async handleNotificationCreated(event: any): Promise<void> {
-    const { id, title, message, recipient, sentAt, priority } = event.payload;
+    const { id, title, message, recipient, sentAt } = event.payload;
 
     this.logger.log({
       message: 'Processing NotificationCreated event',
       notificationId: id,
-      priority: priority || 'normal',
     });
 
     try {
-      const dispatchCommand = {
+      const payload: SendNotificationPayload = {
         id,
         title,
         message,
         recipient,
         sentAt,
-        priority: priority || 'normal',
       };
 
+      const command = new SendNotificationCommandDto(payload);
+
       this.logger.log({
-        message: 'Sending dispatch command',
+        message: 'Sending SendNotification command',
         notificationId: id,
       });
 
-      await lastValueFrom(this.kafkaClient.send('notifications.commands', dispatchCommand));
+      await lastValueFrom(this.kafkaClient.send('notifications.commands', command));
 
       this.logger.log({
-        message: 'Dispatch command sent successfully',
+        message: 'SendNotification command sent successfully',
         notificationId: id,
       });
     } catch (error) {
