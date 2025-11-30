@@ -4,14 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
 import { DispatchResponseDto } from './dto/dispatch-response.dto';
 import { NotificationCreatedEvent } from './events/notification-created.event';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(
-    @Inject('KAFKA_PRODUCER') private client: ClientKafkaProxy,
-  ) {}
+  constructor(@Inject('KAFKA_CLIENT') private clientKafka: ClientKafkaProxy) {}
 
   async dispatchNotification(
     request: DispatchNotificationDto,
@@ -28,7 +27,7 @@ export class AppService {
         sentAt: Date.now(),
       });
 
-      this.client.emit('notifications.events', event);
+      await lastValueFrom(this.clientKafka.emit('notifications.events', event));
       const dispatcherDuration = Date.now() - startTime;
 
       this.logger.log({

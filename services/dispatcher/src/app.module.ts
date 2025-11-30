@@ -12,7 +12,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     }),
     ClientsModule.register([
       {
-        name: 'KAFKA_PRODUCER',
+        name: 'KAFKA_CLIENT',
         transport: Transport.KAFKA,
         options: {
           client: {

@@ -10,6 +10,23 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    ClientsModule.register([
+      {
+        name: 'KAFKA_CLIENT',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: process.env.KAFKA_CLIENT_ID || 'notifications-worker',
+            brokers: process.env.KAFKA_BROKERS?.split(',') || [
+              'localhost:9092',
+            ],
+          },
+          producer: {
+            allowAutoTopicCreation: false,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],
