@@ -1,16 +1,17 @@
-import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ClientKafkaProxy } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
 import { DispatchNotificationDto } from './dto/dispatch-notification.dto';
 import { DispatchResponseDto } from './dto/dispatch-response.dto';
-import { ProcessNotificationDto } from './dto/process-notification.dto';
+import { NotificationCreatedEvent } from './events/notification-created.event';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(@Inject('KAFKA_PRODUCER') private kafkaClient: ClientKafkaProxy) {}
-
+  constructor(
+    @Inject('KAFKA_PRODUCER') private client: ClientKafkaProxy,
+  ) {}
 
   async dispatchNotification(
     request: DispatchNotificationDto,
@@ -19,20 +20,20 @@ export class AppService {
     const notificationId = uuidv4();
 
     try {
-      const processNotification: ProcessNotificationDto = {
+      const event = new NotificationCreatedEvent({
         id: notificationId,
         title: request.title,
         message: request.message,
         recipient: request.recipient,
-        sentAt: request.sentAt,
-      };
+        sentAt: Date.now(),
+      });
 
-      this.kafkaClient.emit('notifications.events', processNotification);
+      this.client.emit('notifications.events', event);
       const dispatcherDuration = Date.now() - startTime;
 
       this.logger.log({
         message: 'Notification dispatched',
-        id: notificationId,
+        id: event.payload.id,
         processingTime: dispatcherDuration,
       });
 
