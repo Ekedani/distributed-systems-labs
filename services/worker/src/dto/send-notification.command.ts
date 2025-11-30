@@ -1,5 +1,6 @@
-export class NotificationSentEvent {
-  eventType = 'NotificationSent';
+export class SendNotificationCommand {
+  readonly commandType = 'SendNotification';
+
   constructor(
     public readonly payload: {
       id: string;

@@ -1,13 +1,15 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ClientKafkaProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { SendNotificationCommandDto, SendNotificationPayload } from './dto/notification.command';
+import { SendNotificationCommand } from './dto/notification.commands';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
 
-  constructor(@Inject('KAFKA_PRODUCER') private kafkaClient: ClientKafkaProxy) {}
+  constructor(
+    @Inject('KAFKA_PRODUCER') private kafkaClient: ClientKafkaProxy,
+  ) {}
 
   async handleNotificationCreated(event: any): Promise<void> {
     const { id, title, message, recipient, sentAt } = event.payload;
@@ -18,22 +20,22 @@ export class AppService {
     });
 
     try {
-      const payload: SendNotificationPayload = {
+      const command = new SendNotificationCommand({
         id,
         title,
         message,
         recipient,
         sentAt,
-      };
-
-      const command = new SendNotificationCommandDto(payload);
+      });
 
       this.logger.log({
         message: 'Sending SendNotification command',
         notificationId: id,
       });
 
-      await lastValueFrom(this.kafkaClient.send('notifications.commands', command));
+      await lastValueFrom(
+        this.kafkaClient.send('notifications.commands', command),
+      );
 
       this.logger.log({
         message: 'SendNotification command sent successfully',

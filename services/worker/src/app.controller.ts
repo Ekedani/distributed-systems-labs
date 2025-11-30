@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
-import { NotificationCommandDto } from './dto/process-notification.dto';
+import { SendNotificationCommand } from './dto/send-notification.command';
 
 @Controller()
 export class AppController {
@@ -9,13 +9,13 @@ export class AppController {
 
   @EventPattern('notifications.commands')
   async processNotification(
-    @Payload() message: NotificationCommandDto,
+    @Payload() message: SendNotificationCommand,
   ): Promise<void> {
-    switch (message.type) {
+    switch (message.commandType) {
       case 'SendNotification':
-        this.appService.sendNotification(message.payload);
+        this.appService.sendNotification(message);
       default:
-        throw new Error(`Unknown command type: ${message.type}`);
+        throw new Error(`Unknown command type: ${message.commandType}`);
     }
   }
 }
