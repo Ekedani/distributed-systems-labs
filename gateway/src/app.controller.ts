@@ -54,6 +54,7 @@ export class AppController {
       createNotificationDto.title,
       createNotificationDto.message,
       createNotificationDto.recipient,
+      createNotificationDto.priority
     );
   }
 }

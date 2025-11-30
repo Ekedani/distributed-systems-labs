@@ -26,6 +26,7 @@ export class AppService implements OnModuleInit {
     title: string,
     message: string,
     recipient: string,
+    priority: string,
   ): Promise<NotificationResponseDto> {
     const sentAt = Date.now();
 
@@ -35,6 +36,7 @@ export class AppService implements OnModuleInit {
         message,
         recipient,
         sentAt,
+        priority
       }),
     );
   }
