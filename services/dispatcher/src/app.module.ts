@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import {
+  Notification,
+  NotificationSchema,
+} from './schemas/notification.schema';
 
 @Module({
   imports: [
@@ -10,6 +15,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/notifications',
+      {
+        replicaSet: 'rs0',
+      },
+    ),
+    MongooseModule.forFeature([
+      { name: Notification.name, schema: NotificationSchema },
+    ]),
     ClientsModule.register([
       {
         name: 'KAFKA_CLIENT',

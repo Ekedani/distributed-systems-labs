@@ -4,6 +4,7 @@ package notification;
 
 service NotificationDispatcherService {
   rpc DispatchNotification(DispatchRequest) returns (DispatchResponse);
+  rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
 }
 
 message DispatchRequest {
@@ -16,4 +17,19 @@ message DispatchRequest {
 
 message DispatchResponse {
   string notification_id = 1;
+}
+
+message GetNotificationRequest {
+  string notification_id = 1;
+}
+
+message GetNotificationResponse {
+  string id = 1;
+  string title = 2;
+  string message = 3;
+  string recipient = 4;
+  int64 sent_at = 5;
+  string status = 6;
+  string created_at = 7;
+  string updated_at = 8;
 }

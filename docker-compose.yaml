@@ -31,9 +31,12 @@ services:
       WORKER_HOST: ${DISPATCHER_WORKER_HOST}
       WORKER_PORT: ${DISPATCHER_WORKER_PORT}
       WORKER_PACKAGE: ${DISPATCHER_WORKER_PACKAGE}
+      MONGODB_URI: ${DISPATCHER_MONGODB_URI}
       KAFKA_BROKERS: ${KAFKA_BROKERS}
       KAFKA_CLIENT_ID: ${DISPATCHER_KAFKA_CLIENT_ID}
     depends_on:
+      mongo1:
+        condition: service_healthy
       kafka-init:
         condition: service_completed_successfully
     deploy:
