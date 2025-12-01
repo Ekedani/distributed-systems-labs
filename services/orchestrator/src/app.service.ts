@@ -34,7 +34,7 @@ export class AppService {
       });
 
       await lastValueFrom(
-        this.kafkaClient.send('notifications.commands', command),
+        this.kafkaClient.emit('notifications.commands', command),
       );
 
       this.logger.log({
