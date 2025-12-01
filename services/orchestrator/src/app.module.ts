@@ -19,8 +19,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
             clientId: process.env.KAFKA_CLIENT_ID || 'notifications-orchestrator',
             brokers: process.env.KAFKA_BROKERS?.split(',') || ['localhost:9092'],
           },
-          consumer: {
-            groupId: process.env.KAFKA_CONSUMER_GROUP_ID || 'orchestrator-group',
+          producer: {
+            allowAutoTopicCreation: false,
           },
         },
       },
