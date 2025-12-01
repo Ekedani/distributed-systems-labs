@@ -18,15 +18,24 @@ export class AppController {
       notificationId: message?.payload?.id || message?.id,
     });
 
-    switch (eventType) {
-      case 'NotificationCreated':
-        await this.appService.handleNotificationCreated(message);
-        break;
-      case 'NotificationSent':
-        await this.appService.handleNotificationSent(message);
-        break;
-      default:
-        this.logger.error(`Unknown event type: ${eventType}`);
+    try {
+      switch (eventType) {
+        case 'NotificationCreated':
+          await this.appService.handleNotificationCreated(message);
+          break;
+        case 'NotificationSent':
+          await this.appService.handleNotificationSent(message);
+          break;
+        default:
+          this.logger.warn(`Unknown event type: ${eventType}`);
+      }
+    } catch (error) {
+      this.logger.error({
+        message: 'Error handling event',
+        eventType,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
     }
   }
 }
