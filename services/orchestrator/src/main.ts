@@ -16,6 +16,17 @@ async function bootstrap() {
         consumer: {
           groupId: process.env.KAFKA_CONSUMER_GROUP_ID || 'orchestrator-group',
           allowAutoTopicCreation: false,
+          sessionTimeout: 30000,
+          heartbeatInterval: 3000,
+          retry: {
+            retries: 5,
+            initialRetryTime: 100,
+          },
+        },
+        run: {
+          autoCommit: true,
+          autoCommitInterval: 5000,
+          autoCommitThreshold: 1,
         },
       },
     },

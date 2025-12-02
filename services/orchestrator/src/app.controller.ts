@@ -35,7 +35,6 @@ export class AppController {
         eventType,
         error: error instanceof Error ? error.message : String(error),
       });
-      throw error;
     }
   }
 }
