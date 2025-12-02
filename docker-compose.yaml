@@ -83,7 +83,7 @@ services:
       sleep 15
       echo 'Creating topics...'
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.high --partitions 2 --replication-factor 1
-      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.normal --partitions 2 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.normal --partitions 1 --replication-factor 1
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.high.reply --partitions 1 --replication-factor 1
       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic notifications.normal.reply --partitions 1 --replication-factor 1
       echo 'Topics created. Listing topics:'
