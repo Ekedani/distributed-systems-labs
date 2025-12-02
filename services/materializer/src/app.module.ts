@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import {
   Notification,
   NotificationSchema,
@@ -23,24 +22,6 @@ import {
     ),
     MongooseModule.forFeature([
       { name: Notification.name, schema: NotificationSchema },
-    ]),
-    ClientsModule.register([
-      {
-        name: 'KAFKA_CLIENT',
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: `${process.env.KAFKA_CLIENT_ID || 'notifications-dispatcher'}-producer`,
-            brokers: process.env.KAFKA_BROKERS?.split(',') || [
-              'localhost:9092',
-            ],
-          },
-          producer: {
-            allowAutoTopicCreation: false,
-          },
-          producerOnlyMode: true,
-        },
-      },
     ]),
   ],
   controllers: [AppController],

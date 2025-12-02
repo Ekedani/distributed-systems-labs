@@ -1,14 +1,17 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiParam,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationResponseDto } from './dto/notification-response.dto';
+import { GetNotificationResponseDto } from './dto/get-notification-response.dto';
 import { Observable } from 'rxjs';
 
 @ApiTags('notifications')
@@ -55,5 +58,70 @@ export class AppController {
       createNotificationDto.message,
       createNotificationDto.recipient,
     );
+  }
+
+  @Get('notifications/:id')
+  @ApiOperation({
+    summary: 'Get a notification by ID',
+    description: 'Retrieves notification details from the read database via the Dispatcher service.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Notification ID',
+    type: String,
+  })
+  @ApiOkResponse({
+    type: GetNotificationResponseDto,
+    description: 'Notification details retrieved successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Notification not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error or dispatcher service unavailable',
+  })
+  getNotification(
+    @Param('id') id: string,
+  ): Promise<GetNotificationResponseDto> {
+    return this.appService.getNotification(id);
+  }
+
+  @Get('notifications')
+  @ApiOperation({
+    summary: 'Get all notifications',
+    description: 'Retrieves all notifications from the read database via the Dispatcher service.',
+  })
+  @ApiOkResponse({
+    description: 'All notifications retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        notifications: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              title: { type: 'string' },
+              message: { type: 'string' },
+              recipient: { type: 'string' },
+              sentAt: { type: 'number' },
+              status: { type: 'string' },
+              createdAt: { type: 'string' },
+              updatedAt: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error or dispatcher service unavailable',
+  })
+  getAllNotifications(): Promise<{ notifications: GetNotificationResponseDto[] }> {
+    return this.appService.getAllNotifications();
   }
 }

@@ -12,18 +12,17 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     }),
     ClientsModule.register([
       {
-        name: 'KAFKA_CLIENT',
+        name: 'KAFKA_PRODUCER',
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: process.env.KAFKA_CLIENT_ID || 'notifications-worker',
-            brokers: process.env.KAFKA_BROKERS?.split(',') || [
-              'localhost:9092',
-            ],
+            clientId: `${process.env.KAFKA_CLIENT_ID || 'notifications-orchestrator'}-producer`,
+            brokers: process.env.KAFKA_BROKERS?.split(',') || ['localhost:9092'],
           },
           producer: {
             allowAutoTopicCreation: false,
           },
+          producerOnlyMode: true,
         },
       },
     ]),
