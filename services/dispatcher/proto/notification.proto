@@ -5,6 +5,7 @@ package notification;
 service NotificationDispatcherService {
   rpc DispatchNotification(DispatchRequest) returns (DispatchResponse);
   rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
+  rpc GetAllNotifications(GetAllNotificationsRequest) returns (GetAllNotificationsResponse);
 }
 
 message DispatchRequest {
@@ -32,4 +33,10 @@ message GetNotificationResponse {
   string status = 6;
   string created_at = 7;
   string updated_at = 8;
+}
+
+message GetAllNotificationsRequest {}
+
+message GetAllNotificationsResponse {
+  repeated GetNotificationResponse notifications = 1;
 }

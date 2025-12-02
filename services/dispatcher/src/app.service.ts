@@ -102,4 +102,38 @@ export class AppService {
       throw error;
     }
   }
+
+  async getAllNotifications(): Promise<{ notifications: GetNotificationResponseDto[] }> {
+    this.logger.log({
+      message: 'Fetching all notifications',
+    });
+
+    try {
+      const notifications = await this.notificationModel.find().exec();
+
+      this.logger.log({
+        message: 'All notifications retrieved successfully',
+        count: notifications.length,
+      });
+
+      return {
+        notifications: notifications.map((notification) => ({
+          id: notification.id,
+          title: notification.title,
+          message: notification.message,
+          recipient: notification.recipient,
+          sentAt: notification.sentAt,
+          status: notification.status,
+          createdAt: notification.createdAt?.toISOString(),
+          updatedAt: notification.updatedAt?.toISOString(),
+        })),
+      };
+    } catch (error) {
+      this.logger.error({
+        message: 'Failed to retrieve all notifications',
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
 }

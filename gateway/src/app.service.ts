@@ -10,6 +10,7 @@ interface NotificationDispatcherService {
     request: DispatchNotificationDto,
   ): Observable<NotificationResponseDto>;
   getNotification(request: { notificationId: string }): Observable<GetNotificationResponseDto>;
+  getAllNotifications(request: {}): Observable<{ notifications: GetNotificationResponseDto[] }>;
 }
 
 @Injectable()
@@ -44,6 +45,12 @@ export class AppService implements OnModuleInit {
   async getNotification(notificationId: string): Promise<GetNotificationResponseDto> {
     return lastValueFrom(
       this.notificationService.getNotification({ notificationId }),
+    );
+  }
+
+  async getAllNotifications(): Promise<{ notifications: GetNotificationResponseDto[] }> {
+    return lastValueFrom(
+      this.notificationService.getAllNotifications({}),
     );
   }
 }

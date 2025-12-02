@@ -87,4 +87,41 @@ export class AppController {
   ): Promise<GetNotificationResponseDto> {
     return this.appService.getNotification(id);
   }
+
+  @Get('notifications')
+  @ApiOperation({
+    summary: 'Get all notifications',
+    description: 'Retrieves all notifications from the read database via the Dispatcher service.',
+  })
+  @ApiOkResponse({
+    description: 'All notifications retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        notifications: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              title: { type: 'string' },
+              message: { type: 'string' },
+              recipient: { type: 'string' },
+              sentAt: { type: 'number' },
+              status: { type: 'string' },
+              createdAt: { type: 'string' },
+              updatedAt: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error or dispatcher service unavailable',
+  })
+  getAllNotifications(): Promise<{ notifications: GetNotificationResponseDto[] }> {
+    return this.appService.getAllNotifications();
+  }
 }

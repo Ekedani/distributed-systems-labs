@@ -25,4 +25,9 @@ export class AppController {
   ): Promise<GetNotificationResponseDto> {
     return this.appService.getNotification(request.notificationId);
   }
+
+  @GrpcMethod('NotificationDispatcherService', 'GetAllNotifications')
+  async getAllNotifications(): Promise<{ notifications: GetNotificationResponseDto[] }> {
+    return this.appService.getAllNotifications();
+  }
 }
