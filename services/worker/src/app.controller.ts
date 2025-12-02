@@ -14,6 +14,7 @@ export class AppController {
     switch (message.commandType) {
       case 'SendNotification':
         this.appService.sendNotification(message);
+        break;
       default:
         throw new Error(`Unknown command type: ${message.commandType}`);
     }
