@@ -30,7 +30,7 @@ import {
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: process.env.KAFKA_CLIENT_ID || 'notifications-dispatcher',
+            clientId: `${process.env.KAFKA_CLIENT_ID || 'notifications-dispatcher'}-producer`,
             brokers: process.env.KAFKA_BROKERS?.split(',') || [
               'localhost:9092',
             ],
@@ -38,6 +38,7 @@ import {
           producer: {
             allowAutoTopicCreation: false,
           },
+          producerOnlyMode: true,
         },
       },
     ]),

@@ -16,12 +16,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: process.env.KAFKA_CLIENT_ID || 'notifications-orchestrator',
+            clientId: `${process.env.KAFKA_CLIENT_ID || 'notifications-orchestrator'}-producer`,
             brokers: process.env.KAFKA_BROKERS?.split(',') || ['localhost:9092'],
           },
           producer: {
             allowAutoTopicCreation: false,
           },
+          producerOnlyMode: true,
         },
       },
     ]),
